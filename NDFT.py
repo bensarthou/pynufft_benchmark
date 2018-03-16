@@ -2,54 +2,55 @@ import numpy as np
 import scipy.misc
 import scipy.ndimage
 import sys, time
+from NDFT_c import *
 
-def progress(count, total, status=''):
-	bar_len = 60
-	filled_len = int(round(bar_len * count / float(total)))
-	percents = round(100.0 * count / float(total), 1)
-	bar = '=' * filled_len + '-' * (bar_len - filled_len)
-	sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', status))
-	sys.stdout.flush()
-
-def ndft_1D(x, f, N):
-	"""non-equispaced discrete Fourier transform"""
-	k = -(N // 2) + np.arange(N)
-	return np.dot(f, np.exp(2j * np.pi * k * x[:, np.newaxis]))
-
-
-def ndft_2D(x, f, Nd):
-	M,N = Nd[0], Nd[1]
-	K = np.shape(x)[0]
-	ndft2d = [0.0 for i in range(K)]
-	for k in range(K):
-		# print('k',k ,'sur ', K)
-		progress(k, K)
-		sum_ = 0.0
-		for m in range(M):
-			for n in range(N):
-				# print(n,m)
-				value = f[m, n]
-				e = np.exp(- 1j * 2*np.pi * (x[k,0] + x[k,1]))
-				sum_ += value * e
-		ndft2d[k] = sum_ / M / N
-	return ndft2d
-
-def indft_2d(y, Nd, x):
-
-	res = np.zeros(Nd)
-	M,N = Nd[0], Nd[1]
-	K = np.shape(x)[0]
-
-	for m in range(M):
-		for n in range(N):
-			# print(n,m)
-			sum_ = 0.0
-			for k in range(K):
-				e = np.exp(1j * 2*np.pi * (x[k,0] + x[k,1]))
-				sum_ += y[k] * e
-			pix = int(sum_.real + 0.5)
-			res[m, n] = pix
-	return res
+# def progress(count, total, status=''):
+# 	bar_len = 60
+# 	filled_len = int(round(bar_len * count / float(total)))
+# 	percents = round(100.0 * count / float(total), 1)
+# 	bar = '=' * filled_len + '-' * (bar_len - filled_len)
+# 	sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', status))
+# 	sys.stdout.flush()
+#
+# def ndft_1D(x, f, N):
+# 	"""non-equispaced discrete Fourier transform"""
+# 	k = -(N // 2) + np.arange(N)
+# 	return np.dot(f, np.exp(2j * np.pi * k * x[:, np.newaxis]))
+#
+#
+# def ndft_2D(x, f, Nd):
+# 	M,N = Nd[0], Nd[1]
+# 	K = np.shape(x)[0]
+# 	ndft2d = [0.0 for i in range(K)]
+# 	for k in range(K):
+# 		# print('k',k ,'sur ', K)
+# 		progress(k, K)
+# 		sum_ = 0.0
+# 		for m in range(M):
+# 			for n in range(N):
+# 				# print(n,m)
+# 				value = f[m, n]
+# 				e = np.exp(- 1j * 2*np.pi * (x[k,0] + x[k,1]))
+# 				sum_ += value * e
+# 		ndft2d[k] = sum_ / M / N
+# 	return ndft2d
+#
+# def indft_2d(y, Nd, x):
+#
+# 	res = np.zeros(Nd)
+# 	M,N = Nd[0], Nd[1]
+# 	K = np.shape(x)[0]
+#
+# 	for m in range(M):
+# 		for n in range(N):
+# 			# print(n,m)
+# 			sum_ = 0.0
+# 			for k in range(K):
+# 				e = np.exp(1j * 2*np.pi * (x[k,0] + x[k,1]))
+# 				sum_ += y[k] * e
+# 			pix = int(sum_.real + 0.5)
+# 			res[m, n] = pix
+# 	return res
 
 # TEST
 # Recreate input image from 2D DFT results to compare to input image

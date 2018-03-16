@@ -1,3 +1,5 @@
 datas/
 results/
 output/
+build/
+*.so
