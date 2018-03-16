@@ -13,6 +13,8 @@ import sys
 import getopt
 import time
 
+from pysap.plugins.mri.reconstruct.utils import convert_locations_to_mask
+
 def str2bool(v):
 	return v.lower() in ("yes", "true", "t", "1")
 
@@ -65,8 +67,22 @@ except IOError or AttributeError:
 	# om is normalized between [-pi, pi]
 	om = np.load(DATA_PATH + 'om2D.npz')['arr_0']
 
-
 Nd = image.shape  # image size
+
+## test
+om_ = om/(2*np.pi)
+om_[om_ > (255/256. - 0.5)] = (255/256. - 0.5)
+mask = convert_locations_to_mask(om_, Nd)
+
+# diff_vert = mask[:,:int(Nd[1]/2)] - mask[:,int(Nd[1]/2):]
+# diff_hor = mask[:int(Nd[0]/2),:] - mask[int(Nd[0]/2):,:]
+
+diff_diag = mask[:int(Nd[0]/2),:int(Nd[1]/2)] - mask[:int(Nd[0]/2),:int(Nd[1]/2)]
+diff_antidiag = mask[:int(Nd[0]/2),int(Nd[1]/2):] - mask[int(Nd[0]/2):,:int(Nd[1]/2)]
+
+print(np.sum(diff_diag))
+print(np.sum(diff_antidiag))
+exit(0)
 
 print('setting image dimension Nd...', Nd)
 print('setting spectrum dimension Kd...', Kd)
