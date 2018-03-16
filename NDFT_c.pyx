@@ -23,6 +23,11 @@ import scipy.misc
 import scipy.ndimage
 import sys, time
 
+from libc.math cimport exp, sqrt, M_PI, floor, ceil
+
+cdef extern from "complex.h":
+	double complex cexp(double complex z)
+
 def progress(count, total, status=''):
 	cdef int bar_len = 60
 	cdef int filled_len = int(round(bar_len * count / float(total)))
@@ -37,39 +42,55 @@ def ndft_1D(np.ndarray x, np.ndarray f, int N):
 	return np.dot(f, np.exp(2j * np.pi * k * x[:, np.newaxis]))
 
 
-def ndft_2D(np.ndarray x, np.ndarray f, int Nd):
+def ndft_2D(np.ndarray x, np.ndarray f, tuple Nd):
 	cdef int M = Nd[0]
 	cdef int N = Nd[1]
 	cdef int K = np.shape(x)[0]
-	cdef np.ndarray ndft2d = np.array([0.0 for i in range(K)])
+	cdef double complex e
+	cdef double value
+	cdef double complex sum_
+
+	cdef np.ndarray ndft2d = np.array([0.0 for i in range(K)], dtype=np.complex128)
+
 	for k in range(K):
-		print('k',k ,'sur ', K)
-		# progress(k, K)
-		cdef double sum_ = 0.0
+		# print('k',k ,'sur ', K)
+		progress(k, K)
+		sum_ = 0.0
 		for m in range(M):
 			for n in range(N):
 				# print(n,m)
 				value = f[m, n]
-				cdef double complex e = np.exp(- 1j * 2*np.pi * (x[k,0] + x[k,1]))
+				# e = np.exp(- 1j * 2*np.pi * (x[k,0] + x[k,1]))
+				e = cexp(- 1j * 2*M_PI * (x[k,0] + x[k,1]))
 				sum_ += value * e
 		ndft2d[k] = sum_ / M / N
 	return ndft2d
 
-def indft_2d(y, Nd, x):
+def indft_2d(np.ndarray y, tuple Nd, np.ndarray x):
 
-	res = np.zeros(Nd)
-	M,N = Nd[0], Nd[1]
-	K = np.shape(x)[0]
+	cdef int M = Nd[0]
+	cdef int N = Nd[1]
+	cdef int K = np.shape(x)[0]
+
+	cdef double complex e
+	cdef double complex sum_
+	cdef int pix
+	cdef int cnt = 0
+
+	cdef np.ndarray res = np.zeros(Nd)
 
 	for m in range(M):
 		for n in range(N):
 			# print(n,m)
+			progress(cnt,M*N)
 			sum_ = 0.0
 			for k in range(K):
-				e = np.exp(1j * 2*np.pi * (x[k,0] + x[k,1]))
+				# e = np.exp(1j * 2*np.pi * (x[k,0] + x[k,1]))
+				e = cexp(- 1j * 2*M_PI * (x[k,0] + x[k,1]))
 				sum_ += y[k] * e
 			pix = int(sum_.real + 0.5)
 			res[m, n] = pix
+			cnt  = cnt + 1
 	return res
 
 def say_hello_to(name):

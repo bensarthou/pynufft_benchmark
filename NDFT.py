@@ -66,11 +66,12 @@ print('NDFT')
 time_begin = time.clock()
 y = ndft_2D(om, image, image.shape)
 time_mid = time.clock()
+print('time NDFT: ', time_mid -time_begin)
 print('INDFT')
 image_new = indft_2d(y, image.shape, om)
 time_end = time.clock()
 
-print('time NDFT: ', time_mid -time_begin, 'time INDFT', time_end - time_mid)
+print('time INDFT', time_end - time_mid)
 
 plt.figure()
 plt.subplot(121)

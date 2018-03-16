@@ -7,21 +7,26 @@ from pynfft.nfft import NFFT
 import pkg_resources
 import sys, getopt, time
 
+def str2bool(v):
+	return v.lower() in ("yes", "true", "t", "1")
+
 print('PyNFFT')
 
 Kd = (512,512)
 Jd = (4,4)
 om_path = None
 title = 'PyNFFT'
+adj = True
+
 argv = sys.argv[1:]
 try:
-	opts, args = getopt.getopt(argv,"hk:j:o:t:",["Kd=","Jd=","om_path=", "title="])
+	opts, args = getopt.getopt(argv,"hk:j:o:t:a:",["Kd=","Jd=","om_path=", "title=", "adj="])
 except getopt.GetoptError:
-	print('test.py -k <kspaceSize> -j <kernelSize> -o <omPath> -t <title>')
+	print('test.py -k <kspaceSize> -j <kernelSize> -o <omPath> -t <title> -a <adjoint>')
 	sys.exit(2)
 for opt, arg in opts:
 	if opt == '-h':
-		print('test.py -k <kspaceSize> -j <kernelSize> -o <omPath> -t <title>')
+		print('test.py -k <kspaceSize> -j <kernelSize> -o <omPath> -t <title> -a <adjoint>')
 		sys.exit()
 	elif opt in ("-k", "--Kd"):
 		Kd = (int(arg), int(arg))
@@ -31,7 +36,8 @@ for opt, arg in opts:
 		om_path = arg
 	elif opt in ("-t", "--title"):
 		title = arg
-
+	elif opt in ("-a", "--adj"):
+		adj = str2bool(arg)
 
 #Import image
 image = scipy.ndimage.imread('datas/mri_slice.png', mode='L')
@@ -71,7 +77,8 @@ time_proc = time_end - time_comp
 time_total = time_preproc + time_proc
 
 save_pynfft = {'y':y_nfft, 'Nd':Nd, 'Kd':Kd, 'Jd':Kd, 'om_path':om_path,\
- 'time_preproc':time_preproc, 'time_proc':time_proc, 'time_total':time_total, 'title':title}
+ 'time_preproc':time_preproc, 'time_proc':time_proc, 'time_total':time_total,\
+ 'adj':adj, 'title':title}
 np.save('datas/'+title+'.npy', save_pynfft)
 
 # ## Plot k-space
@@ -84,14 +91,21 @@ np.save('datas/'+title+'.npy', save_pynfft)
 # plt.title('K-space Pynufft')
 # plt.show()
 
+if adj ==True:
+	# backward test
+	plan.f = y_nfft
+	img_reconstruct_ = plan.adjoint()
+	img_reconstruct = np.abs(img_reconstruct_)/np.max(np.abs(img_reconstruct_))
+	img_reconstruct = img_reconstruct.astype(np.float64)
 
-# backward test
-plan.f = y_nfft
-img_reconstruct = plan.adjoint()
+	# plt.figure()
+	# plt.subplot(121)
+	# plt.imshow(image, cmap = 'gray')
+	# plt.subplot(122)
+	# plt.imshow(img_reconstruct, cmap='gray')
+	# plt.show()
 
-plt.figure()
-plt.subplot(121)
-plt.imshow(image, cmap = 'gray')
-plt.subplot(122)
-plt.imshow(np.absolute(img_reconstruct), cmap='gray')
-plt.show()
+	save_pynfft = {'y':y_nfft, 'Nd':Nd, 'Kd':Kd, 'Jd':Kd, 'om_path':om_path,\
+	 'time_preproc':time_preproc, 'time_proc':time_proc, 'time_total':time_total,\
+	  'title':title, 'adj':adj, 'img_reconstruct':img_reconstruct, 'img_orig': image}
+	np.save('datas/'+title+'.npy', save_pynfft)
