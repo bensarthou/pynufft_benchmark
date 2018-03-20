@@ -51,11 +51,6 @@ def indft_2d(y, Nd, x):
 			res[m, n] = pix
 	return res
 
-def say_hello_to(name):
-	print("Hello %s!" % name)
-# TEST
-# Recreate input image from 2D DFT results to compare to input image
-
 
 
 #Import image
