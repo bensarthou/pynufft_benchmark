@@ -32,8 +32,9 @@ for i in range(n):
 			# print(i,j)
 			dict_2 = np.load('datas/'+argv[j])[()]
 			y_2 = dict_2['y']
-			y_1_abs, y_2_abs = np.absolute(y_1), np.absolute(y_2)
+			y_1_abs, y_2_abs = np.absolute(y_1).astype(np.float64), np.absolute(y_2).astype(np.float64)
 
+			print(y_1_abs.dtype, y_2_abs.dtype)
 			mse = compare_mse(y_1_abs/np.max(y_1_abs), y_2_abs/np.max(y_2_abs))
 			ssim = compare_ssim(y_1_abs, y_2_abs, data_range=y_1_abs.max() - y_1_abs.min())
 

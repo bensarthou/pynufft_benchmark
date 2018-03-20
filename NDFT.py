@@ -64,7 +64,7 @@ om = np.load('datas/om_pynufft.npy') # between [-0.5, 0.5[
 
 print('NDFT')
 time_begin = time.clock()
-y = ndft_2D(om, image, image.shape)
+y = ndft_2D_sym(om, image, image.shape)
 time_mid = time.clock()
 print('time NDFT: ', time_mid -time_begin)
 print('INDFT')

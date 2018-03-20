@@ -92,6 +92,7 @@ np.save('datas/'+title+'.npy', save_pynfft)
 # plt.show()
 
 if adj ==True:
+	print('Adjoint reconstruction')
 	# backward test
 	plan.f = y_nfft
 	img_reconstruct_ = plan.adjoint()

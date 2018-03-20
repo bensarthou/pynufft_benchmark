@@ -13,7 +13,8 @@ import sys
 import getopt
 import time
 
-from pysap.plugins.mri.reconstruct.utils import convert_locations_to_mask
+from utils import convert_locations_to_mask, convert_mask_to_locations
+
 
 def str2bool(v):
 	return v.lower() in ("yes", "true", "t", "1")
@@ -56,6 +57,9 @@ for opt, arg in opts:
 image = scipy.ndimage.imread('datas/mri_slice.png', mode='L')
 image = scipy.misc.imresize(image, (256, 256))
 image = image.astype(float) / np.max(image[...])
+#
+# image = np.ones((1024,1024), dtype=np.float64)
+# Kd =(2048, 2048)
 
 # Import non-uniform frequences
 try:
@@ -69,20 +73,71 @@ except IOError or AttributeError:
 
 Nd = image.shape  # image size
 
-## test
-om_ = om/(2*np.pi)
-om_[om_ > (255/256. - 0.5)] = (255/256. - 0.5)
-mask = convert_locations_to_mask(om_, Nd)
-
+# ## test
+# om_ = om/(2*np.pi)
+# om_[om_ > (255/256. - 0.5)] = (255/256. - 0.5)
+# mask = convert_locations_to_mask(om_, Nd)
+# mask_1 = mask[:int(Nd[0]/2),:int(Nd[1]/2)]
+# mask_2 = mask[:int(Nd[0]/2),int(Nd[1]/2):]
+# mask_3 = mask[int(Nd[0]/2):,:int(Nd[1]/2)]
+# mask_4 = mask[int(Nd[0]/2):,int(Nd[1]/2):]
+# om_1 = convert_mask_to_locations(mask_1)
+# om_2 = convert_mask_to_locations(mask_2)
+# om_3 = convert_mask_to_locations(mask_3)
+# om_4 = convert_mask_to_locations(mask_4)
+#
+# plt.figure()
+# plt.subplot(421)
+# plt.imshow(mask_1, cmap = 'gray')
+# plt.subplot(422)
+# plt.scatter(om_1[:,0],om_1[:,1], cmap='gray', s= 0.5)
+# plt.subplot(423)
+# plt.imshow(mask_2, cmap = 'gray')
+# plt.subplot(424)
+# plt.scatter(om_2[:,0],om_2[:,1], cmap='gray', s= 0.5)
+# plt.subplot(425)
+# plt.imshow(mask_3, cmap = 'gray')
+# plt.subplot(426)
+# plt.scatter(om_3[:,0],om_3[:,1], cmap='gray', s= 0.5)
+# plt.subplot(427)
+# plt.imshow(mask_4, cmap = 'gray')
+# plt.subplot(428)
+# plt.scatter(om_4[:,0],om_4[:,1], cmap='gray', s= 0.5)
+# plt.show()
+# exit(0)
 # diff_vert = mask[:,:int(Nd[1]/2)] - mask[:,int(Nd[1]/2):]
 # diff_hor = mask[:int(Nd[0]/2),:] - mask[int(Nd[0]/2):,:]
+#
+# diff_diag = mask[:int(Nd[0]/2),:int(Nd[1]/2)] - mask[int(Nd[0]/2):,int(Nd[1]/2):]
+# diff_antidiag = mask[:int(Nd[0]/2),int(Nd[1]/2):] - mask[int(Nd[0]/2):,:int(Nd[1]/2)]
+# diff_vert_left = mask[:int(Nd[0]/2),:int(Nd[1]/2)] - mask[int(Nd[0]/2):,:int(Nd[1]/2)]
+# diff_vert_right = mask[:int(Nd[0]/2),int(Nd[1]/2):] - mask[int(Nd[0]/2):,int(Nd[1]/2):]
+#
+# print(np.sum(diff_diag))
+# print(np.sum(diff_antidiag))
+# print(np.sum(diff_vert_left))
+# print(np.sum(diff_vert_right))
+#
+# plt.figure()
+# plt.imshow(mask, cmap='gray')
+# plt.show()
+#
+# plt.figure()
+# plt.subplot(221)
+# plt.imshow(mask[:int(Nd[0]/2),:int(Nd[1]/2)], cmap='gray')
+# plt.subplot(222)
+# plt.imshow(mask[:int(Nd[0]/2),int(Nd[1]/2):], cmap='gray')
+# plt.subplot(223)
+# plt.imshow(mask[int(Nd[0]/2):,:int(Nd[1]/2)], cmap='gray')
+# plt.subplot(224)
+# plt.imshow(mask[int(Nd[0]/2):,int(Nd[1]/2):], cmap='gray')
+# plt.show()
+#
+# plt.figure()
+# plt.imshow(mask[:int(Nd[0]/2),:int(Nd[1]/2)] - mask[:int(Nd[0]/2),:int(Nd[1]/2)], cmap='gray')
+# plt.show()
+# exit(0)
 
-diff_diag = mask[:int(Nd[0]/2),:int(Nd[1]/2)] - mask[:int(Nd[0]/2),:int(Nd[1]/2)]
-diff_antidiag = mask[:int(Nd[0]/2),int(Nd[1]/2):] - mask[int(Nd[0]/2):,:int(Nd[1]/2)]
-
-print(np.sum(diff_diag))
-print(np.sum(diff_antidiag))
-exit(0)
 
 print('setting image dimension Nd...', Nd)
 print('setting spectrum dimension Kd...', Kd)
@@ -92,17 +147,40 @@ print('Fourier transform...')
 time_pre = time.clock()
 # Preprocessing NUFFT
 if(gpu == True):
+	time_1 = time.clock()
 	NufftObj = NUFFT_hsa()
-	NufftObj.offload('cuda')  # for GPU computation
+	time_2 = time.clock()
+	NufftObj.plan(om, Nd, Kd, Jd)
+	time_3 = time.clock()
+	# NufftObj.offload('cuda')  # for GPU computation
+	NufftObj.offload('ocl')  # for multi-CPU computation
+	time_4 = time.clock()
+	dtype = np.complex64
+	time_5 = time.clock()
+
+	print("send image to device")
+	NufftObj.x_Nd = NufftObj.thr.to_device( image.astype(dtype))
+	print("copy image to gx")
+	time_6 = time.clock()
+	gx = NufftObj.thr.copy_array(NufftObj.x_Nd)
+	time_7 = time.clock()
+	print('total:', time_7 - time_1, '/Decl obj: ', time_2 - time_1, '/plan: ', \
+	time_3 - time_2, '/offload: ', time_4 - time_3, '/to_device: ', time_6 - time_5, '\copy_array: ', time_7 - time_6)
 else:
 	NufftObj = NUFFT_cpu()
+	NufftObj.plan(om, Nd, Kd, Jd)
 
-NufftObj.plan(om, Nd, Kd, Jd)
 
 # Compute F_hat
-time_comp = time.clock()
-y_pynufft = NufftObj.forward(image)
-time_end = time.clock()
+if gpu == True:
+	time_comp = time.clock()
+	gy = NufftObj.forward(gx)
+	y_pynufft = gy.get()
+	time_end = time.clock()
+else:
+	time_comp = time.clock()
+	y_pynufft = NufftObj.forward(image)
+	time_end = time.clock()
 
 time_preproc = time_comp - time_pre
 time_proc = time_end - time_comp
@@ -125,10 +203,17 @@ np.save('datas/'+title+'.npy', save_pynufft)
 if adj == True:
 	# backward test
 	print('Self-adjoint Test...')
-	img_reconstruct_ = NufftObj.adjoint(y_pynufft)
+	if gpu == True:
+		gx2 = NufftObj.adjoint(gy)
+		img_reconstruct_ = gx2.get()
+
+	else:
+		img_reconstruct_ = NufftObj.adjoint(y_pynufft)
+
+	# print(np.abs(img_reconstruct_)/np.max(np.abs(img_reconstruct_)))
+
 	img_reconstruct = np.abs(img_reconstruct_)/np.max(np.abs(img_reconstruct_))
 	img_reconstruct = img_reconstruct.astype(np.float64)
-
 	# plt.figure()
 	# plt.suptitle('Comparaison original/selfadjoint')
 	# plt.subplot(121)
@@ -137,7 +222,6 @@ if adj == True:
 	# plt.imshow(img_reconstruct, cmap='gray')
 	# plt.show()
 
-	print(img_reconstruct.dtype)
 	save_pynufft = {'y': y_pynufft, 'Nd': Nd, 'Kd': Kd, 'Jd': Kd, 'om_path': om_path,
 					'time_preproc': time_preproc, 'time_proc': time_proc,\
 					 'time_total': time_total, 'title': title, 'adj':adj,\

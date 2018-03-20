@@ -66,6 +66,55 @@ def ndft_2D(np.ndarray x, np.ndarray f, tuple Nd):
 		ndft2d[k] = sum_ / M / N
 	return ndft2d
 
+def ndft_2D_sym(np.ndarray x, np.ndarray f, tuple Nd):
+	cdef int M = Nd[0]
+	cdef int N = Nd[1]
+	cdef int K = np.shape(x)[0]
+	cdef double complex e_1
+	cdef double complex e_2
+	cdef double complex e_4
+	cdef double complex e_5
+
+	cdef double value
+	cdef double complex sum_1
+	cdef double complex sum_2
+	cdef double complex sum_3
+	cdef double complex sum_4
+
+	cdef np.ndarray ndft2d = np.array([0.0 for i in range(K)], dtype=np.complex128)
+
+	for k in range(int(K/4)):
+		# print('k',k ,'sur ', int(K/4))
+		progress(k, int(K/4))
+		sum_1 = 0.0
+		sum_2 = 0.0
+		sum_3 = 0.0
+		sum_4 = 0.0
+
+		for m in range(M):
+			for n in range(N):
+				# print(n,m)
+				value = f[m, n]
+
+				e_1 = cexp(- 1j * 2*M_PI * (x[k,0] + x[k,1]))
+				e_2 = cexp(- 1j * 2*M_PI * (x[k,0] - x[k,1]))
+				e_3 = cexp(- 1j * 2*M_PI * (-x[k,0] + x[k,1]))
+				e_4 = cexp(- 1j * 2*M_PI * -(x[k,0] + x[k,1]))
+
+				sum_1 += value * e_1
+				sum_2 += value * e_2
+				sum_3 += value * e_3
+				sum_4 += value * e_4
+		ndft2d[k] = sum_1 / M / N
+		ndft2d[k + int(K/4)] = sum_2 / M / N
+		ndft2d[k + 2*int(K/4)] = sum_3 / M / N
+		ndft2d[k + 3*int(K/4)] = sum_4 / M / N
+
+	return ndft2d
+
+
+
+
 def indft_2d(np.ndarray y, tuple Nd, np.ndarray x):
 
 	cdef int M = Nd[0]

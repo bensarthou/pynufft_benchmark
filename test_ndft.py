@@ -3,19 +3,25 @@ import scipy.misc
 import scipy.ndimage
 import matplotlib.pyplot as plt
 
-from NDFT import ndft
+from NDFT_c import *
+
 import pkg_resources
 import sys, getopt, time
+
+def str2bool(v):
+	return v.lower() in ("yes", "true", "t", "1")
 
 print('NDFT')
 
 om_path = None
 title = 'NDFT'
+adj = True
+
 argv = sys.argv[1:]
 try:
-	opts, args = getopt.getopt(argv,"ho:t:",["om_path=", "title="])
+	opts, args = getopt.getopt(argv,"ho:t:a:",["om_path=", "title=", "adj="])
 except getopt.GetoptError:
-	print('test.py -o <omPath> -t <title>')
+	print('test.py -o <omPath> -t <title> -a <adjoint>')
 	sys.exit(2)
 for opt, arg in opts:
 	if opt == '-h':
@@ -25,6 +31,8 @@ for opt, arg in opts:
 		om_path = arg
 	elif opt in ("-t", "--title"):
 		title = arg
+	elif opt in ("-a", "--adj"):
+		adj = str2bool(arg)
 
 
 #Import image
@@ -51,16 +59,16 @@ print('Fourier transform...')
 time_pre = time.clock()
 ## Compute 2D-Fourier transform
 time_comp = time.clock()
-y_nfft = ndft(om,image,Nd)
+y_ndft = ndft_2D(om, image, Nd)
 time_end = time.clock()
 
 time_preproc = time_comp - time_pre
 time_proc = time_end - time_comp
 time_total = time_preproc + time_proc
 
-save_pynfft = {'y':y_nfft, 'Nd':Nd, 'Kd':Kd, 'Jd':Kd, 'om_path':om_path,\
+save_pyndft = {'y':y_ndft, 'Nd':Nd, 'Kd':Kd, 'Jd':Kd, 'om_path':om_path,\
  'time_preproc':time_preproc, 'time_proc':time_proc, 'time_total':time_total, 'title':title}
-np.save('datas/'+title+'.npy', save_pynfft)
+np.save('datas/'+title+'.npy', save_pyndft)
 
 # ## Plot k-space
 # kx = np.real(y_nfft)
@@ -73,13 +81,24 @@ np.save('datas/'+title+'.npy', save_pynfft)
 # plt.show()
 
 
-# # backward test
-# # plan.f = y_nfft
-# # img_reconstruct = plan.adjoint()
-#
-# plt.figure()
-# plt.subplot(121)
-# plt.imshow(image, cmap = 'gray')
-# plt.subplot(122)
-# plt.imshow(np.absolute(img_reconstruct), cmap='gray')
-# plt.show()
+if adj == True:
+	# backward test
+	print('Self-adjoint Test...')
+
+	img_reconstruct_ = indft_2d(y_ndft)
+
+	img_reconstruct = np.abs(img_reconstruct_)/np.max(np.abs(img_reconstruct_))
+	img_reconstruct = img_reconstruct.astype(np.float64)
+	# plt.figure()
+	# plt.suptitle('Comparaison original/selfadjoint')
+	# plt.subplot(121)
+	# plt.imshow(image, cmap='gray')
+	# plt.subplot(122)
+	# plt.imshow(img_reconstruct, cmap='gray')
+	# plt.show()
+
+	save_pyndft = {'y': y_ndft, 'Nd': Nd, 'Kd': Kd, 'Jd': Kd, 'om_path': om_path,
+					'time_preproc': time_preproc, 'time_proc': time_proc,\
+					 'time_total': time_total, 'title': title, 'adj':adj,\
+					 'img_reconstruct': img_reconstruct, 'img_orig': image}
+	np.save('datas/'+title+'.npy', save_pyndft)
