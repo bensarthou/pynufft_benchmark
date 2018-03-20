@@ -66,7 +66,7 @@ time_preproc = time_comp - time_pre
 time_proc = time_end - time_comp
 time_total = time_preproc + time_proc
 
-save_pyndft = {'y':y_ndft, 'Nd':Nd, 'Kd':Kd, 'Jd':Kd, 'om_path':om_path,\
+save_pyndft = {'y':y_ndft, 'Nd':Nd, 'om_path':om_path,\
  'time_preproc':time_preproc, 'time_proc':time_proc, 'time_total':time_total, 'title':title}
 np.save('datas/'+title+'.npy', save_pyndft)
 
