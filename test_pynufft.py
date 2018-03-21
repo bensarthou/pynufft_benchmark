@@ -22,27 +22,30 @@ def str2bool(v):
 
 print('PyNUFFT')
 
-Kd = (512, 512)
-Jd = (4, 4)
-om_path = None
+Kd1 = 512
+Jd1 = 4
+om_path = 'samples_2D.npy'
 title = 'Pynufft'
 gpu = False
 adj = True
+imgPath = 'mri_img_2D.npy'
 
 argv = sys.argv[1:]
 try:
-	opts, args = getopt.getopt(argv, "hk:j:o:t:g:a:", ["Kd=", "Jd=", "om_path=", "title=", "gpu=", "adj="])
+	opts, args = getopt.getopt(argv, "hi:k:j:o:t:g:a:", ["img=","Kd=", "Jd=", "om_path=", "title=", "gpu=", "adj="])
 except getopt.GetoptError:
-	print('test.py -k <kspaceSize> -j <kernelSize> -o <omPath> -t <title> -g <gpu> -a <adjoint>')
+	print('test.py -i <image> -k <kspaceSize> -j <kernelSize> -o <omPath> -t <title> -g <gpu> -a <adjoint>')
 	sys.exit(2)
 for opt, arg in opts:
 	if opt == '-h':
-		print('test.py -k <kspaceSize> -j <kernelSize> -o <omPath> -t <title> -g <gpu> -a <adjoint>')
+		print('test.py -i <image> -k <kspaceSize> -j <kernelSize> -o <omPath> -t <title> -g <gpu> -a <adjoint>')
 		sys.exit()
+	elif opt in ("-i", "--img"):
+		imgPath = arg
 	elif opt in ("-k", "--Kd"):
-		Kd = (int(arg), int(arg))
+		Kd1 = int(arg)
 	elif opt in ("-j", "--Jd"):
-		Jd = (int(arg), int(arg))
+		Jd1 = int(arg)
 	elif opt in ("-o", "--om_path"):
 		om_path = arg
 	elif opt in ("-t", "--title"):
@@ -53,26 +56,31 @@ for opt, arg in opts:
 		adj = str2bool(arg)
 
 
-# Import image
-image = scipy.ndimage.imread('datas/mri_slice.png', mode='L')
-image = scipy.misc.imresize(image, (256, 256))
-image = image.astype(float) / np.max(image[...])
-#
-# image = np.ones((1024,1024), dtype=np.float64)
-# Kd =(2048, 2048)
+### Import image
+# image = scipy.ndimage.imread('datas/mri_slice.png', mode='L')
+# image = scipy.misc.imresize(image, (256,256))
+# image = image.astype(float) / np.max(image[...])
+# print(image)
+image = np.load('datas/'+imgPath)
+
+Nd = image.shape  # image size
+
+# Detection of dimension:
+dim = len(Nd)
 
 # Import non-uniform frequences
 try:
 	om = np.load('datas/' + om_path)  # between [-0.5, 0.5[
-	om = om * (2 * np.pi)
+	om = om * (2 * np.pi) # because Pynufft want it btw [-pi, pi[
 except IOError or AttributeError:
 	print('WARNING: Loading NU sample example from Pynufft')
 	DATA_PATH = pkg_resources.resource_filename('pynufft', './src/data/')
 	# om is normalized between [-pi, pi]
 	om = np.load(DATA_PATH + 'om2D.npz')['arr_0']
 
-Nd = image.shape  # image size
-
+assert(om.shape[1]==dim)
+Kd = (Kd1,)*dim
+Jd =(Jd1,)*dim
 # ## test
 # om_ = om/(2*np.pi)
 # om_[om_ > (255/256. - 0.5)] = (255/256. - 0.5)

@@ -34,7 +34,6 @@ for i in range(n):
 			y_2 = dict_2['y']
 			y_1_abs, y_2_abs = np.absolute(y_1).astype(np.float64), np.absolute(y_2).astype(np.float64)
 
-			print(y_1_abs.dtype, y_2_abs.dtype)
 			mse = compare_mse(y_1_abs/np.max(y_1_abs), y_2_abs/np.max(y_2_abs))
 			ssim = compare_ssim(y_1_abs, y_2_abs, data_range=y_1_abs.max() - y_1_abs.min())
 
@@ -48,7 +47,8 @@ for i in range(n):
 			axes[cnt,2].set_title('K-space')
 			axes[cnt,2].plot(np.real(y_1),np.imag(y_1), 'r.')
 			axes[cnt,2].plot(np.real(y_2),np.imag(y_2), 'b.')
-			axes[cnt,2].set_facecolor('k')
+			axes[cnt,2].set_axis_bgcolor('k')# WARNING set_axis_bgcolor is deprecated in matplotlib 2.0, use next line instead
+			#axes[cnt,2].set_facecolor('k')
 			cnt+=1
 
 plt.tight_layout()

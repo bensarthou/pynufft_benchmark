@@ -4,6 +4,6 @@
 echo Comparaison PyNufft/pynfft
 set -e
 python3 -W ignore test_pynfft.py -o om_pynufft.npy -t F_c -a True
-python3 -W ignore test_pynufft.py -k 512 -j 4 -o om_pynufft.npy -t U_512_4_g -g True -a True
+python3 -W ignore test_pynufft.py -i mri_img_2D -k 512 -j 4 -o om_pynufft.npy -t U_512_4_g -g True -a True
 
-python3 -W ignore test_NFFT.py U_512_4_g.npy F_c.npy
+python3 -W ignore test_NFFT.py U_2D_512_4_g_a.npy F_2D_c_a.npy

@@ -3,10 +3,10 @@
 # En règle générale, les "#" servent à mettre en commentaire le texte qui suit comme ici
 echo Comparaison Taille interpolateur Pynufft
 set -e
-python3 -W ignore test_pynufft.py -k 512 -j 2 -o om_pynufft.npy -t U_512_2_c -g False
-python3 -W ignore test_pynufft.py -k 512 -j 4 -o om_pynufft.npy -t U_512_4_c -g False
-python3 -W ignore test_pynufft.py -k 512 -j 6 -o om_pynufft.npy -t U_512_6_c -g False
-python3 -W ignore test_pynufft.py -k 512 -j 8 -o om_pynufft.npy -t U_512_8_c -g False
-python3 -W ignore test_pynufft.py -k 512 -j 10 -o om_pynufft.npy -t U_512_10_c -g False
+python3 -W ignore test_pynufft.py -i mri_img_2D.npy -k 1024 -j 2 -o samples_2D.npy -t U_2D_1024_2_c_a -g False -a True
+python3 -W ignore test_pynufft.py -i mri_img_2D.npy -k 1024 -j 4 -o samples_2D.npy -t U_2D_1024_4_c_a -g False -a True
+python3 -W ignore test_pynufft.py -i mri_img_2D.npy -k 1024 -j 6 -o samples_2D.npy -t U_2D_1024_6_c_a -g False -a True
+python3 -W ignore test_pynufft.py -i mri_img_2D.npy -k 1024 -j 8 -o samples_2D.npy -t U_2D_1024_8_c_a -g False -a True
+python3 -W ignore test_pynufft.py -i mri_img_2D.npy -k 1024 -j 10 -o samples_2D.npy -t U_2D_1024_10_c_a -g False -a True
 
-python3 -W ignore test_NFFT.py U_512_2_c.npy U_512_4_c.npy U_512_6_c.npy U_512_8_c.npy U_512_10_c.npy
+python3 -W ignore test_NFFT.py U_2D_1024_2_c_a.npy U_2D_1024_4_c_a.npy U_2D_1024_6_c_a.npy U_2D_1024_8_c_a.npy U_2D_1024_10_c_a.npy

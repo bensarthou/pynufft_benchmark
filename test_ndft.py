@@ -85,7 +85,7 @@ if adj == True:
 	# backward test
 	print('Self-adjoint Test...')
 
-	img_reconstruct_ = indft_2d(y_ndft)
+	img_reconstruct_ = indft_2d(y_ndft,Nd,om)
 
 	img_reconstruct = np.abs(img_reconstruct_)/np.max(np.abs(img_reconstruct_))
 	img_reconstruct = img_reconstruct.astype(np.float64)
@@ -97,7 +97,7 @@ if adj == True:
 	# plt.imshow(img_reconstruct, cmap='gray')
 	# plt.show()
 
-	save_pyndft = {'y': y_ndft, 'Nd': Nd, 'Kd': Kd, 'Jd': Kd, 'om_path': om_path,
+	save_pyndft = {'y': y_ndft, 'Nd': Nd, 'om_path': om_path,
 					'time_preproc': time_preproc, 'time_proc': time_proc,\
 					 'time_total': time_total, 'title': title, 'adj':adj,\
 					 'img_reconstruct': img_reconstruct, 'img_orig': image}
