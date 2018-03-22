@@ -35,11 +35,11 @@ argv = sys.argv[1:]
 try:
 	opts, args = getopt.getopt(argv, "hi:k:j:o:t:g:a:", ["img=","Kd=", "Jd=", "om_path=", "title=", "gpu=", "adj="])
 except getopt.GetoptError:
-	print('test.py -i <image> -k <kspaceSize> -j <kernelSize> -o <omPath> -t <title> -g <gpu> -a <adjoint>')
+	print('test_pynufft.py -i <image> -k <kspaceSize> -j <kernelSize> -o <omPath> -t <title> -g <gpu> -a <adjoint>')
 	sys.exit(2)
 for opt, arg in opts:
 	if opt == '-h':
-		print('test.py -i <image> -k <kspaceSize> -j <kernelSize> -o <omPath> -t <title> -g <gpu> -a <adjoint>')
+		print('test_pynufft.py -i <image> -k <kspaceSize> -j <kernelSize> -o <omPath> -t <title> -g <gpu> -a <adjoint>')
 		sys.exit()
 	elif opt in ("-i", "--img"):
 		imgPath = arg

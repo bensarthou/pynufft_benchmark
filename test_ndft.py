@@ -21,7 +21,7 @@ argv = sys.argv[1:]
 try:
 	opts, args = getopt.getopt(argv,"ho:t:a:",["om_path=", "title=", "adj="])
 except getopt.GetoptError:
-	print('test.py -o <omPath> -t <title> -a <adjoint>')
+	print('test_ndft.py -o <omPath> -t <title> -a <adjoint>')
 	sys.exit(2)
 for opt, arg in opts:
 	if opt == '-h':

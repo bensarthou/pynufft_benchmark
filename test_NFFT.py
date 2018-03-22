@@ -51,7 +51,7 @@ for i in range(n):
 			#axes[cnt,2].set_facecolor('k')
 			cnt+=1
 
-plt.tight_layout()
+# plt.tight_layout()
 mng = plt.get_current_fig_manager()
 mng.resize(*mng.window.maxsize())
 plt.savefig('results/perf_comp_'+'_VS_'.join(list_title)+'.png', bbox_inches='tight')
