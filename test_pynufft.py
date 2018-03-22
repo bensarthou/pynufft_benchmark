@@ -13,8 +13,9 @@ import sys
 import getopt
 import time
 
-from utils import convert_locations_to_mask, convert_mask_to_locations
+from utils_3D import convert_locations_to_mask, convert_mask_to_locations
 
+from memory_profiler import memory_usage
 
 def str2bool(v):
 	return v.lower() in ("yes", "true", "t", "1")
@@ -62,7 +63,7 @@ for opt, arg in opts:
 # image = image.astype(float) / np.max(image[...])
 # print(image)
 image = np.load('datas/'+imgPath)
-
+# image = image[224:288,224:288,224:288]
 Nd = image.shape  # image size
 
 # Detection of dimension:
@@ -116,35 +117,6 @@ Jd =(Jd1,)*dim
 # diff_vert = mask[:,:int(Nd[1]/2)] - mask[:,int(Nd[1]/2):]
 # diff_hor = mask[:int(Nd[0]/2),:] - mask[int(Nd[0]/2):,:]
 #
-# diff_diag = mask[:int(Nd[0]/2),:int(Nd[1]/2)] - mask[int(Nd[0]/2):,int(Nd[1]/2):]
-# diff_antidiag = mask[:int(Nd[0]/2),int(Nd[1]/2):] - mask[int(Nd[0]/2):,:int(Nd[1]/2)]
-# diff_vert_left = mask[:int(Nd[0]/2),:int(Nd[1]/2)] - mask[int(Nd[0]/2):,:int(Nd[1]/2)]
-# diff_vert_right = mask[:int(Nd[0]/2),int(Nd[1]/2):] - mask[int(Nd[0]/2):,int(Nd[1]/2):]
-#
-# print(np.sum(diff_diag))
-# print(np.sum(diff_antidiag))
-# print(np.sum(diff_vert_left))
-# print(np.sum(diff_vert_right))
-#
-# plt.figure()
-# plt.imshow(mask, cmap='gray')
-# plt.show()
-#
-# plt.figure()
-# plt.subplot(221)
-# plt.imshow(mask[:int(Nd[0]/2),:int(Nd[1]/2)], cmap='gray')
-# plt.subplot(222)
-# plt.imshow(mask[:int(Nd[0]/2),int(Nd[1]/2):], cmap='gray')
-# plt.subplot(223)
-# plt.imshow(mask[int(Nd[0]/2):,:int(Nd[1]/2)], cmap='gray')
-# plt.subplot(224)
-# plt.imshow(mask[int(Nd[0]/2):,int(Nd[1]/2):], cmap='gray')
-# plt.show()
-#
-# plt.figure()
-# plt.imshow(mask[:int(Nd[0]/2),:int(Nd[1]/2)] - mask[:int(Nd[0]/2),:int(Nd[1]/2)], cmap='gray')
-# plt.show()
-# exit(0)
 
 
 print('setting image dimension Nd...', Nd)
@@ -158,6 +130,9 @@ if(gpu == True):
 	time_1 = time.clock()
 	NufftObj = NUFFT_hsa()
 	time_2 = time.clock()
+	# mem_usage =  memory_usage((NufftObj.plan,(om, Nd, Kd, Jd)))
+	# print(mem_usage)
+
 	NufftObj.plan(om, Nd, Kd, Jd)
 	time_3 = time.clock()
 	# NufftObj.offload('cuda')  # for GPU computation
@@ -176,6 +151,8 @@ if(gpu == True):
 	time_3 - time_2, '/offload: ', time_4 - time_3, '/to_device: ', time_6 - time_5, '\copy_array: ', time_7 - time_6)
 else:
 	NufftObj = NUFFT_cpu()
+	# mem_usage = memory_usage((NufftObj.plan,(om, Nd, Kd, Jd)))
+	# print(mem_usage)
 	NufftObj.plan(om, Nd, Kd, Jd)
 
 

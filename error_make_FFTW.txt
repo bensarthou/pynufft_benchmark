@@ -1,0 +1,25 @@
+** Erreur lors d'un make install (pour installer FFTW) sur une machine distance:
+
+Making install in api
+make[1] : on entre dans le répertoire « /home/bs255482/Téléchargements/fftw-3.3.7/api »
+make  install-am
+make[2] : on entre dans le répertoire « /home/bs255482/Téléchargements/fftw-3.3.7/api »
+make[3] : on entre dans le répertoire « /home/bs255482/Téléchargements/fftw-3.3.7/api »
+make[3]: rien à faire pour « install-exec-am ».
+ /bin/mkdir -p '/usr/local/include'
+ /usr/bin/install -c -m 644 fftw3.h fftw3.f fftw3l.f03 fftw3q.f03 '/usr/local/include'
+/usr/bin/install: impossible de créer le fichier standard '/usr/local/include/fftw3.h': Permission non accordée
+/usr/bin/install: impossible de créer le fichier standard '/usr/local/include/fftw3.f': Permission non accordée
+/usr/bin/install: impossible de créer le fichier standard '/usr/local/include/fftw3l.f03': Permission non accordée
+/usr/bin/install: impossible de créer le fichier standard '/usr/local/include/fftw3q.f03': Permission non accordée
+Makefile:566 : la recette pour la cible « install-includeHEADERS » a échouée
+make[3]: *** [install-includeHEADERS] Erreur 1
+make[3] : on quitte le répertoire « /home/bs255482/Téléchargements/fftw-3.3.7/api »
+Makefile:705 : la recette pour la cible « install-am » a échouée
+make[2]: *** [install-am] Erreur 2
+make[2] : on quitte le répertoire « /home/bs255482/Téléchargements/fftw-3.3.7/api »
+Makefile:699 : la recette pour la cible « install » a échouée
+make[1]: *** [install] Erreur 2
+make[1] : on quitte le répertoire « /home/bs255482/Téléchargements/fftw-3.3.7/api »
+Makefile:707 : la recette pour la cible « install-recursive » a échouée
+make: *** [install-recursive] Erreur 1
