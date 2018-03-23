@@ -2,7 +2,7 @@
 
 ## I - Installation
 
-PyNufft can be installed through pip (`pip 3 install pynufft`) or via the project Github.
+PyNufft can be installed through pip (`pip3 install pynufft`) or via the project Github.
 
 For CPU computation, it only uses Numpy with pretty great accuracy (but slow computation time).
 
