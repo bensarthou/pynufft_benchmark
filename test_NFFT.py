@@ -47,8 +47,8 @@ for i in range(n):
 			axes[cnt,2].set_title('K-space')
 			axes[cnt,2].plot(np.real(y_1),np.imag(y_1), 'r.')
 			axes[cnt,2].plot(np.real(y_2),np.imag(y_2), 'b.')
-			axes[cnt,2].set_axis_bgcolor('k')# WARNING set_axis_bgcolor is deprecated in matplotlib 2.0, use next line instead
-			#axes[cnt,2].set_facecolor('k')
+			# axes[cnt,2].set_axis_bgcolor('k')# WARNING set_axis_bgcolor is deprecated in matplotlib 2.0, use next line instead
+			axes[cnt,2].set_facecolor('k')
 			cnt+=1
 
 # plt.tight_layout()

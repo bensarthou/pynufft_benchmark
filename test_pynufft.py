@@ -5,8 +5,11 @@ import scipy.misc
 import scipy.ndimage
 import matplotlib.pyplot as plt
 
-from pynufft.pynufft import NUFFT_hsa
-from pynufft.pynufft import NUFFT_cpu
+# from pynufft.pynufft import NUFFT_hsa
+# from pynufft.pynufft import NUFFT_cpu
+
+from pynufft import NUFFT_hsa
+from pynufft import NUFFT_cpu
 
 import pkg_resources
 import sys
@@ -82,41 +85,6 @@ except IOError or AttributeError:
 assert(om.shape[1]==dim)
 Kd = (Kd1,)*dim
 Jd =(Jd1,)*dim
-# ## test
-# om_ = om/(2*np.pi)
-# om_[om_ > (255/256. - 0.5)] = (255/256. - 0.5)
-# mask = convert_locations_to_mask(om_, Nd)
-# mask_1 = mask[:int(Nd[0]/2),:int(Nd[1]/2)]
-# mask_2 = mask[:int(Nd[0]/2),int(Nd[1]/2):]
-# mask_3 = mask[int(Nd[0]/2):,:int(Nd[1]/2)]
-# mask_4 = mask[int(Nd[0]/2):,int(Nd[1]/2):]
-# om_1 = convert_mask_to_locations(mask_1)
-# om_2 = convert_mask_to_locations(mask_2)
-# om_3 = convert_mask_to_locations(mask_3)
-# om_4 = convert_mask_to_locations(mask_4)
-#
-# plt.figure()
-# plt.subplot(421)
-# plt.imshow(mask_1, cmap = 'gray')
-# plt.subplot(422)
-# plt.scatter(om_1[:,0],om_1[:,1], cmap='gray', s= 0.5)
-# plt.subplot(423)
-# plt.imshow(mask_2, cmap = 'gray')
-# plt.subplot(424)
-# plt.scatter(om_2[:,0],om_2[:,1], cmap='gray', s= 0.5)
-# plt.subplot(425)
-# plt.imshow(mask_3, cmap = 'gray')
-# plt.subplot(426)
-# plt.scatter(om_3[:,0],om_3[:,1], cmap='gray', s= 0.5)
-# plt.subplot(427)
-# plt.imshow(mask_4, cmap = 'gray')
-# plt.subplot(428)
-# plt.scatter(om_4[:,0],om_4[:,1], cmap='gray', s= 0.5)
-# plt.show()
-# exit(0)
-# diff_vert = mask[:,:int(Nd[1]/2)] - mask[:,int(Nd[1]/2):]
-# diff_hor = mask[:int(Nd[0]/2),:] - mask[int(Nd[0]/2):,:]
-#
 
 
 print('setting image dimension Nd...', Nd)
@@ -160,6 +128,11 @@ else:
 if gpu == True:
 	time_comp = time.clock()
 	gy = NufftObj.forward(gx)
+	# print(type(gy))
+	# gy = np.array(gy)
+	# print(type(gy))
+	# print(gy)
+	# exit(0)
 	y_pynufft = gy.get()
 	time_end = time.clock()
 else:
